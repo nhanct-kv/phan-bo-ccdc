@@ -927,17 +927,17 @@ export default function App() {
             Công cụ dụng cụ (option 2)
           </a>
           <a
-            className={`sidebar-item${activePage === 'opt25' ? ' active' : ''}`}
+            className={`sidebar-item${activePage === 'opt3' ? ' active' : ''}`}
             href="#"
-            onClick={(e) => { e.preventDefault(); setActivePage('opt25') }}
+            onClick={(e) => { e.preventDefault(); setActivePage('opt3') }}
           >
             <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.4"><rect x="2" y="3" width="14" height="12" rx="2" /><path d="M2 7h14M6 7v8M12 7v8" /></svg>
             Công cụ dụng cụ (option 3)
           </a>
           <a
-            className={`sidebar-item${activePage === 'opt3' ? ' active' : ''}`}
+            className={`sidebar-item${activePage === 'opt25' ? ' active' : ''}`}
             href="#"
-            onClick={(e) => { e.preventDefault(); setActivePage('opt3') }}
+            onClick={(e) => { e.preventDefault(); setActivePage('opt25') }}
           >
             <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.4"><rect x="2" y="3" width="14" height="12" rx="2" /><path d="M2 7h14M6 7v8M12 7v8" /></svg>
             Công cụ dụng cụ (option 4)
