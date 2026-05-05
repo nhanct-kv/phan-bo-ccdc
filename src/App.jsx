@@ -299,7 +299,7 @@ function GroupRecordModal({ item, nhomPhanBo, addNhom, updateNhom, removeNhom, o
         )}
         {remaining > 0 && sumAllocated > 0 && sumAllocated <= 100 && (
           <div style={{ background: '#f2f8fe', border: '1px solid #cce2fd', borderRadius: 8, padding: '12px 14px', fontSize: 14, lineHeight: '20px', color: '#15171a', marginBottom: 12 }}>
-            Còn <strong>{remaining} bộ</strong> {item?.name} <strong>chưa được phân bổ</strong>. Bạn có thể phân bổ luôn hoặc để sau.
+            Còn <strong>{remaining} bộ</strong> {item?.name} chưa được ghi nhận chi phí. Bạn có thể xem và ghi nhận sau tại danh sách CCDC chưa ghi nhận.
           </div>
         )}
 
@@ -323,7 +323,6 @@ function MultiAllocModal({ item, opt2Forms, addOpt2Form, updateOpt2, removeOpt2F
   const unitPrice = TOTAL_AMOUNT / TOTAL_QTY
   const sumAllocated = opt2Forms.reduce((s, f) => s + (parseInt(f.soLuong) || 0), 0)
   const remaining = Math.max(0, TOTAL_QTY - sumAllocated)
-
   const toggleCollapse = (id) => setOpt2Collapsed((prev) => ({ ...prev, [id]: !prev[id] }))
 
   return (
@@ -389,6 +388,13 @@ function MultiAllocModal({ item, opt2Forms, addOpt2Form, updateOpt2, removeOpt2F
                 <div style={{ padding: '14px 16px' }}>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                     <div>
+                      <div className="form-label">Địa điểm sử dụng</div>
+                      <select className="form-select" value={f.diaDiem} onChange={(e) => updateOpt2(idx, 'diaDiem', e.target.value)}>
+                        <option>Chi nhánh Hà Nội</option>
+                        <option>Chi nhánh HCM</option>
+                      </select>
+                    </div>
+                    <div>
                       <div className="form-label">Số lượng CCDC phân bổ</div>
                       <div style={{ position: 'relative' }}>
                         <input
@@ -398,13 +404,6 @@ function MultiAllocModal({ item, opt2Forms, addOpt2Form, updateOpt2, removeOpt2F
                         />
                         <span style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', fontSize: 13, color: '#85909d' }}>/ {TOTAL_QTY} bộ</span>
                       </div>
-                    </div>
-                    <div>
-                      <div className="form-label">Địa điểm sử dụng</div>
-                      <select className="form-select" value={f.diaDiem} onChange={(e) => updateOpt2(idx, 'diaDiem', e.target.value)}>
-                        <option>Chi nhánh Hà Nội</option>
-                        <option>Chi nhánh HCM</option>
-                      </select>
                     </div>
                     <div>
                       <div className="form-label">Ngày bắt đầu phân bổ</div>
@@ -445,7 +444,7 @@ function MultiAllocModal({ item, opt2Forms, addOpt2Form, updateOpt2, removeOpt2F
 
         {remaining > 0 && sumAllocated > 0 && (
           <div style={{ background: '#f2f8fe', border: '1px solid #cce2fd', borderRadius: 8, padding: '12px 14px', fontSize: 14, lineHeight: '20px', color: '#15171a', marginBottom: 12 }}>
-            Còn <strong>{remaining} bộ</strong> {item.name} <strong>chưa được phân bổ</strong>. {restrictNew ? 'Bạn có thể phân bổ sau.' : 'Bạn có thể phân bổ luôn hoặc để sau.'}
+            Còn <strong>{remaining} bộ</strong> {item.name} chưa được ghi nhận chi phí. {restrictNew ? 'Bạn có thể phân bổ sau.' : 'Bạn có thể xem và ghi nhận sau tại danh sách CCDC chưa ghi nhận.'}
           </div>
         )}
         {sumAllocated > TOTAL_QTY && (
@@ -453,7 +452,15 @@ function MultiAllocModal({ item, opt2Forms, addOpt2Form, updateOpt2, removeOpt2F
             Tổng số lượng CCDC không được vượt quá <strong>{TOTAL_QTY} bộ</strong> (Hiện tại: <strong>{sumAllocated} bộ</strong>)
           </div>
         )}
-        {!(opt2Forms.length === 1 && sumAllocated >= TOTAL_QTY) && !(restrictNew && remaining > 0) && (
+        {restrictNew ? (
+          !(remaining > 0) && !(opt2Forms.length === 1 && sumAllocated >= TOTAL_QTY) && (
+            <div>
+              <span style={{ color: '#0070f4', fontWeight: 600, fontSize: 14, cursor: 'pointer' }} onClick={addOpt2Form}>
+                + Thêm phân bổ
+              </span>
+            </div>
+          )
+        ) : (
           <div>
             <span style={{ color: '#0070f4', fontWeight: 600, fontSize: 14, cursor: 'pointer' }} onClick={addOpt2Form}>
               + Thêm phân bổ
@@ -464,6 +471,289 @@ function MultiAllocModal({ item, opt2Forms, addOpt2Form, updateOpt2, removeOpt2F
       <div className="modal-footer">
         <button className="btn btn-outline" onClick={onClose}>Hủy bỏ</button>
         <button className="btn btn-primary" onClick={onSave || onClose}>Lưu</button>
+      </div>
+    </ModalOverlay>
+  )
+}
+
+function Opt3Modal({ item, onClose, onSave }) {
+  const TOTAL_QTY = item.qty
+  const TOTAL_AMOUNT = 45000000
+  const unitPrice = TOTAL_AMOUNT / TOTAL_QTY
+
+  const [mode, setMode] = useState('single')
+  const [forms, setForms] = useState([{ id: 1, soLuong: String(TOTAL_QTY), diaDiem: 'Chi nhánh Hà Nội', ngay: '', thoiGian: '' }])
+  const [collapsed, setCollapsed] = useState({})
+  const [nhomForms, setNhomForms] = useState([{ id: 1, soLuong: String(TOTAL_QTY), diaDiem: 'Chi nhánh Hà Nội', ngay: '', thoiGian: '' }])
+
+  const sumSingle = forms.reduce((s, f) => s + (parseInt(f.soLuong) || 0), 0)
+  const remainingSingle = Math.max(0, TOTAL_QTY - sumSingle)
+  const sumNhom = nhomForms.reduce((s, n) => s + (parseInt(n.soLuong) || 0), 0)
+  const remainingNhom = Math.max(0, TOTAL_QTY - sumNhom)
+
+  const toggleCollapse = (id) => setCollapsed((prev) => ({ ...prev, [id]: !prev[id] }))
+  const updateForm = (idx, field, val) => setForms((prev) => prev.map((f, i) => i === idx ? { ...f, [field]: val } : f))
+  const addForm = () => setForms((prev) => {
+    const sum = prev.reduce((s, f) => s + (parseInt(f.soLuong) || 0), 0)
+    return [...prev, { id: Date.now(), soLuong: String(Math.max(0, TOTAL_QTY - sum)), diaDiem: 'Chi nhánh Hà Nội', ngay: '', thoiGian: '' }]
+  })
+  const removeForm = (idx) => setForms((prev) => prev.filter((_, i) => i !== idx))
+
+  const updateNhom = (idx, field, val) => setNhomForms((prev) => prev.map((n, i) => i === idx ? { ...n, [field]: val } : n))
+  const addNhom = () => setNhomForms((prev) => [...prev, { id: Date.now(), soLuong: '', diaDiem: 'Chi nhánh Hà Nội', ngay: '', thoiGian: '' }])
+  const removeNhom = (idx) => setNhomForms((prev) => prev.filter((_, i) => i !== idx))
+
+  const handleSave = () => onSave(mode === 'single' ? forms : nhomForms)
+
+  return (
+    <ModalOverlay onClose={onClose} width={mode === 'multi' ? 780 : 560}>
+      <button className="modal-close" onClick={onClose}>✕</button>
+      <div className="modal-title">Ghi nhận chi phí</div>
+      <div className="modal-body">
+        <div className="info-card">
+          <div className="info-card-left">
+            <div className="info-card-name">{item.name}</div>
+            <div className="info-card-meta"><span>{item.type}</span><span>{item.code}</span></div>
+            <div className="info-card-meta">Ngày mua: 07/03/2026 15:41</div>
+          </div>
+          <div className="info-card-right">
+            <div className="info-card-price">{TOTAL_AMOUNT.toLocaleString('vi-VN')}</div>
+            <div className="info-card-qty">SL: {TOTAL_QTY} bộ</div>
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 16, fontSize: 14, color: '#15171a' }}>
+          <span style={{ fontWeight: 500 }}>Ghi nhận chi phí cho:</span>
+          <label style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}>
+            <input type="radio" name="opt3-mode" checked={mode === 'single'} onChange={() => setMode('single')} style={{ cursor: 'pointer' }} />
+            Một địa điểm kinh doanh
+          </label>
+          <label style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}>
+            <input type="radio" name="opt3-mode" checked={mode === 'multi'} onChange={() => setMode('multi')} style={{ cursor: 'pointer' }} />
+            Nhiều địa điểm kinh doanh
+          </label>
+        </div>
+
+        {mode === 'single' && (
+          <>
+            {forms.map((f, idx) => {
+              const sl = parseInt(f.soLuong) || 0
+              const months = parseInt(f.thoiGian) || 0
+              const cost = sl * unitPrice
+              const monthly = months > 0 ? Math.round(cost / months) : 0
+              const formComplete = sl > 0 && months > 0 && f.ngay && f.diaDiem
+              const isCollapsed = !!collapsed[f.id]
+              const summaryParts = [sl > 0 && `${sl} bộ`, f.diaDiem, f.thoiGian && `${f.thoiGian} tháng`].filter(Boolean)
+
+              return (
+                <div key={f.id} style={{ background: '#fff', border: '1px solid #e8eaed', borderRadius: 10, marginBottom: 12, overflow: 'hidden' }}>
+                  {forms.length > 1 && (
+                    <div
+                      style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 16px', borderBottom: isCollapsed ? 'none' : '1px solid #eef0f2', background: '#fafbfc', cursor: 'pointer', userSelect: 'none' }}
+                      onClick={() => toggleCollapse(f.id)}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 1, minWidth: 0 }}>
+                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" style={{ transition: 'transform 150ms', transform: isCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)', flexShrink: 0 }}>
+                          <path d="M3 4.5L6 7.5L9 4.5" stroke="#525d6a" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                        <span style={{ fontSize: 13, fontWeight: 600, color: '#0070f4' }}>Nhóm phân bổ {idx + 1}</span>
+                        {isCollapsed && summaryParts.length > 0 && (
+                          <span style={{ fontSize: 12, color: '#85909d', marginLeft: 4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            — {summaryParts.join(' · ')}
+                          </span>
+                        )}
+                      </div>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); removeForm(idx) }}
+                        style={{ background: 'none', border: 'none', color: '#85909d', cursor: 'pointer', padding: 4, display: 'flex', alignItems: 'center', borderRadius: 6 }}
+                        title="Xóa"
+                        onMouseEnter={(e) => { e.currentTarget.style.background = '#f7f8f9'; e.currentTarget.style.color = '#d92d20' }}
+                        onMouseLeave={(e) => { e.currentTarget.style.background = 'none'; e.currentTarget.style.color = '#85909d' }}
+                      >
+                        <TrashIcon />
+                      </button>
+                    </div>
+                  )}
+                  {!isCollapsed && (
+                    <div style={{ padding: '14px 16px' }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                        <div>
+                          <div className="form-label">Địa điểm sử dụng</div>
+                          <select className="form-select" value={f.diaDiem} onChange={(e) => updateForm(idx, 'diaDiem', e.target.value)}>
+                            <option>Chi nhánh Hà Nội</option>
+                            <option>Chi nhánh HCM</option>
+                          </select>
+                        </div>
+                        <div>
+                          <div className="form-label">Số lượng CCDC phân bổ</div>
+                          <div style={{ position: 'relative' }}>
+                            <input
+                              value={f.soLuong}
+                              onChange={(e) => updateForm(idx, 'soLuong', e.target.value)}
+                              style={{ width: '100%', height: 40, border: '1px solid #e8eaed', borderRadius: 12, padding: '0 70px 0 12px', fontSize: 14, fontFamily: 'Inter,sans-serif', outline: 'none', background: '#fff' }}
+                            />
+                            <span style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', fontSize: 13, color: '#85909d' }}>/ {TOTAL_QTY} bộ</span>
+                          </div>
+                        </div>
+                        <div>
+                          <div className="form-label">Ngày bắt đầu phân bổ</div>
+                          <div style={{ position: 'relative' }}>
+                            <input
+                              type="text" placeholder="Chọn ngày" value={f.ngay}
+                              onChange={(e) => updateForm(idx, 'ngay', e.target.value)}
+                              style={{ width: '100%', height: 40, border: '1px solid #e8eaed', borderRadius: 12, padding: '0 36px 0 12px', fontSize: 14, fontFamily: 'Inter,sans-serif', outline: 'none', background: '#fff' }}
+                            />
+                            <span style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', width: 16, height: 16, color: '#85909d', pointerEvents: 'none', display: 'flex' }}>
+                              <CalendarIcon />
+                            </span>
+                          </div>
+                        </div>
+                        <div>
+                          <div className="form-label">Thời gian phân bổ (theo tháng)</div>
+                          <input
+                            type="text" placeholder="VD: 12" value={f.thoiGian}
+                            onChange={(e) => updateForm(idx, 'thoiGian', e.target.value)}
+                            style={{ width: '100%', height: 40, border: '1px solid #e8eaed', borderRadius: 12, padding: '0 12px', fontSize: 14, fontFamily: 'Inter,sans-serif', outline: 'none', background: '#fff' }}
+                          />
+                        </div>
+                      </div>
+                      {formComplete && (
+                        <div style={{ marginTop: 10, fontSize: 13, color: '#525d6a', lineHeight: '18px' }}>
+                          Chi phí <strong>{cost.toLocaleString('vi-VN')}</strong> của <strong>{sl} bộ</strong> sẽ được tự động ghi nhận vào sổ kế toán, mỗi tháng ghi nhận <strong>{monthly.toLocaleString('vi-VN')}</strong>.
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )
+            })}
+
+            {remainingSingle > 0 && sumSingle > 0 && (
+              <div style={{ background: '#f2f8fe', border: '1px solid #cce2fd', borderRadius: 8, padding: '12px 14px', fontSize: 14, lineHeight: '20px', color: '#15171a', marginBottom: 12 }}>
+                Còn <strong>{remainingSingle} bộ</strong> {item.name} chưa được ghi nhận chi phí. Bạn có thể xem và ghi nhận sau tại danh sách CCDC chưa ghi nhận.
+              </div>
+            )}
+            {sumSingle > TOTAL_QTY && (
+              <div style={{ background: '#fff4f4', border: '1px solid #fbcfcf', borderRadius: 8, padding: '12px 14px', fontSize: 14, lineHeight: '20px', color: '#a8071a', marginBottom: 12 }}>
+                Tổng số lượng CCDC không được vượt quá <strong>{TOTAL_QTY} bộ</strong> (Hiện tại: <strong>{sumSingle} bộ</strong>)
+              </div>
+            )}
+            {!(remainingSingle > 0) && !(forms.length === 1 && sumSingle >= TOTAL_QTY) && (
+              <div>
+                <span style={{ color: '#0070f4', fontWeight: 600, fontSize: 14, cursor: 'pointer' }} onClick={addForm}>
+                  + Thêm phân bổ
+                </span>
+              </div>
+            )}
+          </>
+        )}
+
+        {mode === 'multi' && (
+          <>
+            <div className="table-card" style={{ marginBottom: 12 }}>
+              <table>
+                <thead style={{ background: '#e6f1fe' }}>
+                  <tr>
+                    <th style={{ minWidth: 180 }}>Địa điểm sử dụng</th>
+                    <th style={{ width: 120 }}>Số lượng CCDC</th>
+                    <th>Ngày bắt đầu</th>
+                    <th style={{ width: 110 }}>Thời gian phân bổ</th>
+                    <th style={{ textAlign: 'right', width: 76 }}>Giá trị phân bổ/ tháng</th>
+                    <th style={{ width: 36 }}></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {nhomForms.map((nhom, idx) => {
+                    const sl = parseInt(nhom.soLuong) || 0
+                    const months = parseInt(nhom.thoiGian) || 0
+                    const monthly = months > 0 ? Math.round(sl * unitPrice / months) : 0
+
+                    return (
+                      <tr key={nhom.id}>
+                        <td style={{ padding: '8px 10px' }}>
+                          <select
+                            value={nhom.diaDiem}
+                            onChange={(e) => updateNhom(idx, 'diaDiem', e.target.value)}
+                            style={{ width: '100%', height: 32, border: '1px solid #e8eaed', borderRadius: 8, padding: '0 24px 0 8px', fontSize: 13, fontFamily: 'Inter,sans-serif', outline: 'none', background: `#fff url("${CHEVRON_DOWN_SVG}") no-repeat right 8px center`, appearance: 'none' }}
+                          >
+                            <option>Chi nhánh Hà Nội</option>
+                            <option>Chi nhánh HCM</option>
+                          </select>
+                        </td>
+                        <td style={{ padding: '8px 10px' }}>
+                          <div style={{ position: 'relative' }}>
+                            <input
+                              value={nhom.soLuong}
+                              onChange={(e) => updateNhom(idx, 'soLuong', e.target.value)}
+                              style={{ width: '100%', height: 32, border: '1px solid #e8eaed', borderRadius: 8, padding: '0 55px 0 8px', fontSize: 13, fontFamily: 'Inter,sans-serif', outline: 'none' }}
+                            />
+                            <span style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', fontSize: 12, color: '#85909d' }}>/ {TOTAL_QTY}</span>
+                          </div>
+                        </td>
+                        <td style={{ padding: '8px 10px' }}>
+                          <div style={{ position: 'relative' }}>
+                            <input
+                              type="text" placeholder="Chọn ngày" value={nhom.ngay}
+                              onChange={(e) => updateNhom(idx, 'ngay', e.target.value)}
+                              style={{ width: '100%', height: 32, border: '1px solid #e8eaed', borderRadius: 8, padding: '0 28px 0 8px', fontSize: 13, fontFamily: 'Inter,sans-serif', outline: 'none' }}
+                            />
+                            <span style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', width: 14, height: 14, color: '#85909d', pointerEvents: 'none', display: 'flex' }}>
+                              <CalendarIcon />
+                            </span>
+                          </div>
+                        </td>
+                        <td style={{ padding: '8px 10px' }}>
+                          <div style={{ position: 'relative' }}>
+                            <input
+                              type="text" placeholder="VD: 12" value={nhom.thoiGian}
+                              onChange={(e) => updateNhom(idx, 'thoiGian', e.target.value)}
+                              style={{ width: '100%', height: 32, border: '1px solid #e8eaed', borderRadius: 8, padding: '0 40px 0 8px', fontSize: 13, fontFamily: 'Inter,sans-serif', outline: 'none' }}
+                            />
+                            <span style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', fontSize: 12, color: '#85909d' }}>tháng</span>
+                          </div>
+                        </td>
+                        <td style={{ padding: '8px 10px', textAlign: 'right', fontWeight: 600, fontSize: 13, whiteSpace: 'nowrap' }}>
+                          {monthly > 0 ? monthly.toLocaleString('vi-VN') : '—'}
+                        </td>
+                        <td style={{ padding: '8px 4px', textAlign: 'center' }}>
+                          {nhomForms.length > 1 && (
+                            <button
+                              onClick={() => removeNhom(idx)}
+                              style={{ background: 'none', border: 'none', color: '#85909d', cursor: 'pointer', padding: 4, display: 'inline-flex', alignItems: 'center' }}
+                              title="Xóa"
+                            >
+                              <TrashIcon />
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            {sumNhom > TOTAL_QTY && (
+              <div style={{ background: '#fff4f4', border: '1px solid #fbcfcf', borderRadius: 8, padding: '12px 14px', fontSize: 14, lineHeight: '20px', color: '#a8071a', marginBottom: 12 }}>
+                Tổng số lượng CCDC không được vượt quá <strong>{TOTAL_QTY} bộ</strong> (Hiện tại: <strong>{sumNhom} bộ</strong>)
+              </div>
+            )}
+            {remainingNhom > 0 && sumNhom > 0 && sumNhom <= TOTAL_QTY && (
+              <div style={{ background: '#f2f8fe', border: '1px solid #cce2fd', borderRadius: 8, padding: '12px 14px', fontSize: 14, lineHeight: '20px', color: '#15171a', marginBottom: 12 }}>
+                Còn <strong>{remainingNhom} bộ</strong> {item.name} chưa được ghi nhận chi phí. Bạn có thể xem và ghi nhận sau tại danh sách CCDC chưa ghi nhận.
+              </div>
+            )}
+            <div style={{ marginTop: 4 }}>
+              <span style={{ color: '#0070f4', fontWeight: 600, fontSize: 14, cursor: 'pointer' }} onClick={addNhom}>
+                + Thêm địa điểm cần phân bổ
+              </span>
+            </div>
+          </>
+        )}
+      </div>
+      <div className="modal-footer">
+        <button className="btn btn-outline" onClick={onClose}>Hủy bỏ</button>
+        <button className="btn btn-primary" onClick={handleSave}>Lưu</button>
       </div>
     </ModalOverlay>
   )
@@ -499,12 +789,26 @@ export default function App() {
       setModal('opt25')
       return
     }
+    if (activePage === 'opt3') {
+      setModal('opt3')
+      return
+    }
     setPhanboOption(0)
     setModal('phanbo')
   }
 
   const handleOpt25Save = () => {
     const sumAllocated = opt25Forms.reduce((s, f) => s + (parseInt(f.soLuong) || 0), 0)
+    if (sumAllocated > 0 && selectedItem) {
+      setItems((prev) => prev.map((it) =>
+        it.id === selectedItem.id ? { ...it, qty: Math.max(0, it.qty - sumAllocated) } : it
+      ))
+    }
+    closeModal()
+  }
+
+  const handleOpt3Save = (allocForms) => {
+    const sumAllocated = allocForms.reduce((s, f) => s + (parseInt(f.soLuong) || 0), 0)
     if (sumAllocated > 0 && selectedItem) {
       setItems((prev) => prev.map((it) =>
         it.id === selectedItem.id ? { ...it, qty: Math.max(0, it.qty - sumAllocated) } : it
@@ -628,7 +932,15 @@ export default function App() {
             onClick={(e) => { e.preventDefault(); setActivePage('opt25') }}
           >
             <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.4"><rect x="2" y="3" width="14" height="12" rx="2" /><path d="M2 7h14M6 7v8M12 7v8" /></svg>
-            Công cụ dụng cụ (option 2.5)
+            Công cụ dụng cụ (option 3)
+          </a>
+          <a
+            className={`sidebar-item${activePage === 'opt3' ? ' active' : ''}`}
+            href="#"
+            onClick={(e) => { e.preventDefault(); setActivePage('opt3') }}
+          >
+            <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.4"><rect x="2" y="3" width="14" height="12" rx="2" /><path d="M2 7h14M6 7v8M12 7v8" /></svg>
+            Công cụ dụng cụ (option 4)
           </a>
         </aside>
 
@@ -754,6 +1066,14 @@ export default function App() {
           onClose={closeModal}
           onSave={handleOpt25Save}
           restrictNew
+        />
+      )}
+
+      {modal === 'opt3' && selectedItem && (
+        <Opt3Modal
+          item={selectedItem}
+          onClose={closeModal}
+          onSave={handleOpt3Save}
         />
       )}
     </div>
