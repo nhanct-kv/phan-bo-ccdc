@@ -825,7 +825,8 @@ function Opt3Modal({ item, onClose, onSave, fixedMode }) {
 
 export default function App() {
   const [items, setItems] = useState(DATA)
-  const [activePage, setActivePage] = useState('opt1')
+  const [activePage, setActivePage] = useState('hkt1')
+  const [nhapCollapsed, setNhapCollapsed] = useState(true)
   const [activeTab, setActiveTab] = useState(0)
   const [modal, setModal] = useState(null)
   const [selectedItem, setSelectedItem] = useState(null)
@@ -999,39 +1000,52 @@ export default function App() {
             CCDC &amp; Dịch vụ (HKD nhiều ĐDKD)
           </a>
 
-          <div className="sidebar-group-label">Nháp</div>
-          <a
-            className={`sidebar-item${activePage === 'opt1' ? ' active' : ''}`}
-            href="#"
-            onClick={(e) => { e.preventDefault(); setActivePage('opt1') }}
+          <div
+            className="sidebar-group-label"
+            onClick={() => setNhapCollapsed(v => !v)}
+            style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingRight: 12 }}
           >
-            <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.4"><rect x="2" y="3" width="14" height="12" rx="2" /><path d="M2 7h14M6 7v8M12 7v8" /></svg>
-            Công cụ dụng cụ
-          </a>
-          <a
-            className={`sidebar-item${activePage === 'opt2' ? ' active' : ''}`}
-            href="#"
-            onClick={(e) => { e.preventDefault(); setActivePage('opt2') }}
-          >
-            <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.4"><rect x="2" y="3" width="14" height="12" rx="2" /><path d="M2 7h14M6 7v8M12 7v8" /></svg>
-            Công cụ dụng cụ (option 2)
-          </a>
-          <a
-            className={`sidebar-item${activePage === 'opt3' ? ' active' : ''}`}
-            href="#"
-            onClick={(e) => { e.preventDefault(); setActivePage('opt3') }}
-          >
-            <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.4"><rect x="2" y="3" width="14" height="12" rx="2" /><path d="M2 7h14M6 7v8M12 7v8" /></svg>
-            Công cụ dụng cụ (option 3)
-          </a>
-          <a
-            className={`sidebar-item${activePage === 'opt25' ? ' active' : ''}`}
-            href="#"
-            onClick={(e) => { e.preventDefault(); setActivePage('opt25') }}
-          >
-            <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.4"><rect x="2" y="3" width="14" height="12" rx="2" /><path d="M2 7h14M6 7v8M12 7v8" /></svg>
-            Công cụ dụng cụ (option 4)
-          </a>
+            Nháp
+            <svg width="10" height="6" viewBox="0 0 10 6" fill="none" style={{ transition: 'transform 150ms', transform: nhapCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)' }}>
+              <path d="M1 1l4 4 4-4" stroke="#85909d" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </div>
+          {!nhapCollapsed && (
+            <>
+              <a
+                className={`sidebar-item${activePage === 'opt1' ? ' active' : ''}`}
+                href="#"
+                onClick={(e) => { e.preventDefault(); setActivePage('opt1') }}
+              >
+                <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.4"><rect x="2" y="3" width="14" height="12" rx="2" /><path d="M2 7h14M6 7v8M12 7v8" /></svg>
+                Công cụ dụng cụ
+              </a>
+              <a
+                className={`sidebar-item${activePage === 'opt2' ? ' active' : ''}`}
+                href="#"
+                onClick={(e) => { e.preventDefault(); setActivePage('opt2') }}
+              >
+                <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.4"><rect x="2" y="3" width="14" height="12" rx="2" /><path d="M2 7h14M6 7v8M12 7v8" /></svg>
+                Công cụ dụng cụ (option 2)
+              </a>
+              <a
+                className={`sidebar-item${activePage === 'opt3' ? ' active' : ''}`}
+                href="#"
+                onClick={(e) => { e.preventDefault(); setActivePage('opt3') }}
+              >
+                <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.4"><rect x="2" y="3" width="14" height="12" rx="2" /><path d="M2 7h14M6 7v8M12 7v8" /></svg>
+                Công cụ dụng cụ (option 3)
+              </a>
+              <a
+                className={`sidebar-item${activePage === 'opt25' ? ' active' : ''}`}
+                href="#"
+                onClick={(e) => { e.preventDefault(); setActivePage('opt25') }}
+              >
+                <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.4"><rect x="2" y="3" width="14" height="12" rx="2" /><path d="M2 7h14M6 7v8M12 7v8" /></svg>
+                Công cụ dụng cụ (option 4)
+              </a>
+            </>
+          )}
         </aside>
 
         <div className="main-content">
