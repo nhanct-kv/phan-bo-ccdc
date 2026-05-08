@@ -476,12 +476,12 @@ function MultiAllocModal({ item, opt2Forms, addOpt2Form, updateOpt2, removeOpt2F
   )
 }
 
-function Opt3Modal({ item, onClose, onSave }) {
+function Opt3Modal({ item, onClose, onSave, fixedMode }) {
   const TOTAL_QTY = item.qty
   const TOTAL_AMOUNT = 45000000
   const unitPrice = TOTAL_AMOUNT / TOTAL_QTY
 
-  const [mode, setMode] = useState('single')
+  const [mode, setMode] = useState(fixedMode || 'single')
   const [forms, setForms] = useState([{ id: 1, soLuong: String(TOTAL_QTY), diaDiem: 'Chi nhánh Hà Nội', ngay: '', thoiGian: '' }])
   const [collapsed, setCollapsed] = useState({})
   const [nhomForms, setNhomForms] = useState([{ id: 1, soLuong: String(TOTAL_QTY), diaDiem: 'Chi nhánh Hà Nội', ngay: '', thoiGian: '' }])
@@ -522,17 +522,19 @@ function Opt3Modal({ item, onClose, onSave }) {
           </div>
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 16, fontSize: 14, color: '#15171a' }}>
-          <span style={{ fontWeight: 500 }}>Ghi nhận chi phí cho:</span>
-          <label style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}>
-            <input type="radio" name="opt3-mode" checked={mode === 'single'} onChange={() => setMode('single')} style={{ cursor: 'pointer' }} />
-            Một địa điểm kinh doanh
-          </label>
-          <label style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}>
-            <input type="radio" name="opt3-mode" checked={mode === 'multi'} onChange={() => setMode('multi')} style={{ cursor: 'pointer' }} />
-            Nhiều địa điểm kinh doanh
-          </label>
-        </div>
+        {!fixedMode && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 16, fontSize: 14, color: '#15171a' }}>
+            <span style={{ fontWeight: 500 }}>Ghi nhận chi phí cho:</span>
+            <label style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}>
+              <input type="radio" name="opt3-mode" checked={mode === 'single'} onChange={() => setMode('single')} style={{ cursor: 'pointer' }} />
+              Một địa điểm kinh doanh
+            </label>
+            <label style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}>
+              <input type="radio" name="opt3-mode" checked={mode === 'multi'} onChange={() => setMode('multi')} style={{ cursor: 'pointer' }} />
+              Nhiều địa điểm kinh doanh
+            </label>
+          </div>
+        )}
 
         {mode === 'single' && (
           <>
@@ -577,14 +579,16 @@ function Opt3Modal({ item, onClose, onSave }) {
                   {!isCollapsed && (
                     <div style={{ padding: '14px 16px' }}>
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                        <div>
-                          <div className="form-label">Địa điểm sử dụng</div>
-                          <select className="form-select" value={f.diaDiem} onChange={(e) => updateForm(idx, 'diaDiem', e.target.value)}>
-                            <option>Chi nhánh Hà Nội</option>
-                            <option>Chi nhánh HCM</option>
-                          </select>
-                        </div>
-                        <div>
+                        {!fixedMode && (
+                          <div>
+                            <div className="form-label">Địa điểm sử dụng</div>
+                            <select className="form-select" value={f.diaDiem} onChange={(e) => updateForm(idx, 'diaDiem', e.target.value)}>
+                              <option>Chi nhánh Hà Nội</option>
+                              <option>Chi nhánh HCM</option>
+                            </select>
+                          </div>
+                        )}
+                        <div style={{ gridColumn: fixedMode ? '1 / -1' : 'auto' }}>
                           <div className="form-label">Số lượng CCDC phân bổ</div>
                           <div style={{ position: 'relative' }}>
                             <input
@@ -617,7 +621,7 @@ function Opt3Modal({ item, onClose, onSave }) {
                           />
                         </div>
                       </div>
-                      {formComplete && (
+                      {!fixedMode && formComplete && (
                         <div style={{ marginTop: 10, fontSize: 13, color: '#525d6a', lineHeight: '18px' }}>
                           Chi phí <strong>{cost.toLocaleString('vi-VN')}</strong> của <strong>{sl} bộ</strong> sẽ được tự động ghi nhận vào sổ kế toán, mỗi tháng ghi nhận <strong>{monthly.toLocaleString('vi-VN')}</strong>.
                         </div>
@@ -628,9 +632,33 @@ function Opt3Modal({ item, onClose, onSave }) {
               )
             })}
 
-            {remainingSingle > 0 && sumSingle > 0 && (
+            {!fixedMode && remainingSingle > 0 && sumSingle > 0 && (
               <div style={{ background: '#f2f8fe', border: '1px solid #cce2fd', borderRadius: 8, padding: '12px 14px', fontSize: 14, lineHeight: '20px', color: '#15171a', marginBottom: 12 }}>
                 Còn <strong>{remainingSingle} bộ</strong> {item.name} chưa được ghi nhận chi phí. Bạn có thể xem và ghi nhận sau tại danh sách CCDC chưa ghi nhận.
+              </div>
+            )}
+            {fixedMode && (forms.some(f => (parseInt(f.soLuong) || 0) > 0 && (parseInt(f.thoiGian) || 0) > 0 && f.ngay) || (remainingSingle > 0 && sumSingle > 0)) && (
+              <div style={{ background: '#f2f8fe', border: '1px solid #cce2fd', borderRadius: 8, padding: '12px 14px', fontSize: 14, lineHeight: '22px', color: '#15171a', marginBottom: 12 }}>
+                {remainingSingle > 0 && sumSingle > 0 && (
+                  <div style={{ marginBottom: forms.some(f => (parseInt(f.soLuong)||0) > 0 && (parseInt(f.thoiGian)||0) > 0 && f.ngay) ? 6 : 0 }}>Còn <strong>{remainingSingle} bộ</strong> {item.name} chưa được ghi nhận chi phí.</div>
+                )}
+                {forms.map((f, i) => {
+                  const sl = parseInt(f.soLuong) || 0
+                  const months = parseInt(f.thoiGian) || 0
+                  if (!(sl > 0 && months > 0 && f.ngay)) return null
+                  const cost = sl * unitPrice
+                  const monthly = months > 0 ? Math.round(cost / months) : 0
+                  const ngayParts = (f.ngay || '').split('/')
+                  const monthYear = ngayParts.length === 3 ? `${parseInt(ngayParts[1])}/${ngayParts[2]}` : ''
+                  return (
+                    <div key={i}>
+                      {months === 1
+                        ? <>Chi phí <strong>{cost.toLocaleString('vi-VN')}</strong> của <strong>{sl} bộ</strong> sẽ được ghi nhận là chi phí tháng <strong>{monthYear}</strong> trong sổ kế toán.</>
+                        : <>Chi phí <strong>{cost.toLocaleString('vi-VN')}</strong> của <strong>{sl} bộ</strong> sẽ được tự động ghi nhận vào sổ kế toán, mỗi tháng ghi nhận <strong>{monthly.toLocaleString('vi-VN')}</strong>.</>
+                      }
+                    </div>
+                  )
+                })}
               </div>
             )}
             {sumSingle > TOTAL_QTY && (
@@ -738,7 +766,7 @@ function Opt3Modal({ item, onClose, onSave }) {
                 Tổng số lượng CCDC không được vượt quá <strong>{TOTAL_QTY} bộ</strong> (Hiện tại: <strong>{sumNhom} bộ</strong>)
               </div>
             )}
-            {remainingNhom > 0 && sumNhom > 0 && sumNhom <= TOTAL_QTY && (
+            {!fixedMode && remainingNhom > 0 && sumNhom > 0 && sumNhom <= TOTAL_QTY && (
               <div style={{ background: '#f2f8fe', border: '1px solid #cce2fd', borderRadius: 8, padding: '12px 14px', fontSize: 14, lineHeight: '20px', color: '#15171a', marginBottom: 12 }}>
                 Còn <strong>{remainingNhom} bộ</strong> {item.name} chưa được ghi nhận chi phí. Bạn có thể xem và ghi nhận sau tại danh sách CCDC chưa ghi nhận.
               </div>
@@ -748,6 +776,42 @@ function Opt3Modal({ item, onClose, onSave }) {
                 + Thêm địa điểm cần phân bổ
               </span>
             </div>
+            {fixedMode && (() => {
+              const completeRows = nhomForms.filter(n => (parseInt(n.soLuong) || 0) > 0 && (parseInt(n.thoiGian) || 0) > 0 && n.ngay)
+              const hasComplete = completeRows.length > 0
+              const hasRemaining = remainingNhom > 0 && sumNhom > 0 && sumNhom <= TOTAL_QTY
+              if (!hasComplete && !hasRemaining) return null
+              const totalQty = completeRows.reduce((s, n) => s + (parseInt(n.soLuong) || 0), 0)
+              const totalCost = totalQty * unitPrice
+              const totalMonthly = completeRows.reduce((s, n) => {
+                const sl = parseInt(n.soLuong) || 0
+                const months = parseInt(n.thoiGian) || 0
+                return s + (months > 0 ? Math.round(sl * unitPrice / months) : 0)
+              }, 0)
+              const locCount = completeRows.length
+              const allMonths1 = completeRows.every(n => (parseInt(n.thoiGian) || 0) === 1)
+              const firstNgayParts = completeRows.length > 0 ? (completeRows[0].ngay || '').split('/') : []
+              const monthYear = firstNgayParts.length === 3 ? `${parseInt(firstNgayParts[1])}/${firstNgayParts[2]}` : ''
+              return (
+                <div style={{ background: '#f2f8fe', border: '1px solid #cce2fd', borderRadius: 8, padding: '12px 14px', fontSize: 14, lineHeight: '22px', color: '#15171a', marginTop: 12 }}>
+                  {hasRemaining && (
+                    <div style={{ marginBottom: hasComplete ? 6 : 0 }}>
+                      Còn <strong>{remainingNhom} bộ</strong> {item.name} chưa được ghi nhận chi phí.
+                    </div>
+                  )}
+                  {hasComplete && (
+                    <div>
+                      {locCount > 1
+                        ? <>Chi phí <strong>{totalCost.toLocaleString('vi-VN')}</strong> của <strong>{totalQty} bộ</strong> sẽ được tự động ghi nhận vào sổ kế toán tại <strong>{locCount}</strong> địa điểm theo phân bổ đã thiết lập.</>
+                        : allMonths1
+                          ? <>Chi phí <strong>{totalCost.toLocaleString('vi-VN')}</strong> của <strong>{totalQty} bộ</strong> sẽ được ghi nhận là chi phí tháng <strong>{monthYear}</strong> trong sổ kế toán tại <strong>{locCount}</strong> địa điểm kinh doanh.</>
+                          : <>Chi phí <strong>{totalCost.toLocaleString('vi-VN')}</strong> của <strong>{totalQty} bộ</strong> sẽ được tự động ghi nhận vào sổ kế toán, mỗi tháng ghi nhận <strong>{totalMonthly.toLocaleString('vi-VN')}</strong> tại <strong>{locCount}</strong> địa điểm kinh doanh.</>
+                      }
+                    </div>
+                  )}
+                </div>
+              )
+            })()}
           </>
         )}
       </div>
@@ -791,6 +855,14 @@ export default function App() {
     }
     if (activePage === 'opt3') {
       setModal('opt3')
+      return
+    }
+    if (activePage === 'hkt1') {
+      setModal('hkt1')
+      return
+    }
+    if (activePage === 'hktN') {
+      setModal('hktN')
       return
     }
     setPhanboOption(0)
@@ -911,6 +983,24 @@ export default function App() {
 
           <div className="sidebar-group-label">Hạch toán</div>
           <a
+            className={`sidebar-item${activePage === 'hkt1' ? ' active' : ''}`}
+            href="#"
+            onClick={(e) => { e.preventDefault(); setActivePage('hkt1') }}
+          >
+            <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.4"><rect x="2" y="3" width="14" height="12" rx="2" /><path d="M2 7h14M6 7v8M12 7v8" /></svg>
+            CCDC &amp; Dịch vụ (HKD 1 ĐDKD)
+          </a>
+          <a
+            className={`sidebar-item${activePage === 'hktN' ? ' active' : ''}`}
+            href="#"
+            onClick={(e) => { e.preventDefault(); setActivePage('hktN') }}
+          >
+            <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.4"><rect x="2" y="3" width="14" height="12" rx="2" /><path d="M2 7h14M6 7v8M12 7v8" /></svg>
+            CCDC &amp; Dịch vụ (HKD nhiều ĐDKD)
+          </a>
+
+          <div className="sidebar-group-label">Nháp</div>
+          <a
             className={`sidebar-item${activePage === 'opt1' ? ' active' : ''}`}
             href="#"
             onClick={(e) => { e.preventDefault(); setActivePage('opt1') }}
@@ -977,6 +1067,7 @@ export default function App() {
                 <thead style={{ background: TABLE_HEADER_BG }}>
                   <tr>
                     <th>Tên hàng</th>
+                    {(activePage === 'hkt1' || activePage === 'hktN') && <th>Số lượng</th>}
                     <th>Mã phiếu</th>
                     <th>Ngày mua</th>
                     <th>Phân loại</th>
@@ -990,8 +1081,11 @@ export default function App() {
                     <tr key={item.id}>
                       <td>
                         <div>{item.name}</div>
-                        <div style={{ fontSize: 12, color: '#85909d', marginTop: 2 }}>SL: {item.qty}</div>
+                        {activePage !== 'hkt1' && activePage !== 'hktN' && (
+                          <div style={{ fontSize: 12, color: '#85909d', marginTop: 2 }}>SL: {item.qty}</div>
+                        )}
                       </td>
+                      {(activePage === 'hkt1' || activePage === 'hktN') && <td>{item.qty}</td>}
                       <td>{item.code}</td>
                       <td>{item.date}</td>
                       <td>{item.type}</td>
@@ -1074,6 +1168,24 @@ export default function App() {
           item={selectedItem}
           onClose={closeModal}
           onSave={handleOpt3Save}
+        />
+      )}
+
+      {modal === 'hkt1' && selectedItem && (
+        <Opt3Modal
+          item={selectedItem}
+          onClose={closeModal}
+          onSave={handleOpt3Save}
+          fixedMode="single"
+        />
+      )}
+
+      {modal === 'hktN' && selectedItem && (
+        <Opt3Modal
+          item={selectedItem}
+          onClose={closeModal}
+          onSave={handleOpt3Save}
+          fixedMode="multi"
         />
       )}
     </div>
