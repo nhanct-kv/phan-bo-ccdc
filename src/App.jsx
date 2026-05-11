@@ -1,14 +1,13 @@
 import { useState } from 'react'
 
 const DATA = [
-  { id: 1, name: 'Bộ bát sứ cao cấp', qty: 100, code: 'MH-202603-0045', date: '25/03/2026', type: 'CCDC', total: '240.000.000', branch: 'Chi nhánh 1' },
-  { id: 2, name: 'Máy pha café La Marzocco', qty: 10, code: 'MH-202603-0045', date: '25/03/2026', type: 'CCDC', total: '240.000.000', branch: 'Chi nhánh 1' },
-  { id: 3, name: 'Máy in HP LaserJet Pro M404n', qty: 100, code: 'MH-202603-0045', date: '25/03/2026', type: 'CCDC', total: '240.000.000', branch: 'Chi nhánh 1' },
-  { id: 4, name: 'Điện thoại bàn Panasonic KX-TS500', qty: 100, code: 'MH-202603-0045', date: '25/03/2026', type: 'CCDC', total: '240.000.000', branch: 'Chi nhánh 1' },
+  { id: 1, name: 'Bộ bát sứ cao cấp', qty: 100, code: 'MH-202603-0045', date: '25/03/2026', type: 'Công cụ dụng cụ', total: '240.000.000', branch: 'Chi nhánh 1' },
+  { id: 2, name: 'Máy pha café La Marzocco', qty: 10, code: 'MH-202603-0045', date: '25/03/2026', type: 'Công cụ dụng cụ', total: '240.000.000', branch: 'Chi nhánh 1' },
+  { id: 3, name: 'Máy in HP LaserJet Pro M404n', qty: 100, code: 'MH-202603-0045', date: '25/03/2026', type: 'Công cụ dụng cụ', total: '240.000.000', branch: 'Chi nhánh 1' },
+  { id: 4, name: 'Điện thoại bàn Panasonic KX-TS500', qty: 100, code: 'MH-202603-0045', date: '25/03/2026', type: 'Công cụ dụng cụ', total: '240.000.000', branch: 'Chi nhánh 1' },
 ]
 
 const TABS = [
-  { label: 'Tất cả', count: 18 },
   { label: 'Chưa ghi nhận', count: 6 },
   { label: 'Dùng một kỳ', count: 6 },
   { label: 'Phân bổ nhiều kỳ', count: 6 },
@@ -72,13 +71,12 @@ function ItemCard({ item }) {
       <div className="info-card-left">
         <div className="info-card-name">{item.name}</div>
         <div className="info-card-meta">
-          <span>{item.type}</span><span>{item.code}</span>
+          <span>{item.type}</span><span className="dot-sep">·</span><span>{item.qty} bộ</span>
         </div>
-        <div className="info-card-meta">Ngày mua: 07/03/2026 15:41</div>
+        <div className="info-card-meta">Ngày mua: 07/03/2026 15:41<span className="dot-sep">·</span>{item.code}</div>
       </div>
       <div className="info-card-right">
         <div className="info-card-price">45.000.000</div>
-        <div className="info-card-qty">SL: {item.qty}</div>
       </div>
     </div>
   )
@@ -334,13 +332,12 @@ function MultiAllocModal({ item, opt2Forms, addOpt2Form, updateOpt2, removeOpt2F
           <div className="info-card-left">
             <div className="info-card-name">{item.name}</div>
             <div className="info-card-meta">
-              <span>{item.type}</span><span>{item.code}</span>
+              <span>{item.type}</span><span className="dot-sep">·</span><span>SL: {TOTAL_QTY} bộ</span>
             </div>
-            <div className="info-card-meta">Ngày mua: 07/03/2026 15:41</div>
+            <div className="info-card-meta">Ngày mua: 07/03/2026 15:41<span className="dot-sep">·</span>{item.code}</div>
           </div>
           <div className="info-card-right">
             <div className="info-card-price">{TOTAL_AMOUNT.toLocaleString('vi-VN')}</div>
-            <div className="info-card-qty">SL: {TOTAL_QTY} bộ</div>
           </div>
         </div>
 
@@ -513,12 +510,11 @@ function Opt3Modal({ item, onClose, onSave, fixedMode }) {
         <div className="info-card">
           <div className="info-card-left">
             <div className="info-card-name">{item.name}</div>
-            <div className="info-card-meta"><span>{item.type}</span><span>{item.code}</span></div>
-            <div className="info-card-meta">Ngày mua: 07/03/2026 15:41</div>
+            <div className="info-card-meta"><span>{item.type}</span><span className="dot-sep">·</span><span>SL: {TOTAL_QTY} bộ</span></div>
+            <div className="info-card-meta">Ngày mua: 07/03/2026 15:41<span className="dot-sep">·</span>{item.code}</div>
           </div>
           <div className="info-card-right">
             <div className="info-card-price">{TOTAL_AMOUNT.toLocaleString('vi-VN')}</div>
-            <div className="info-card-qty">SL: {TOTAL_QTY} bộ</div>
           </div>
         </div>
 
@@ -589,7 +585,7 @@ function Opt3Modal({ item, onClose, onSave, fixedMode }) {
                           </div>
                         )}
                         <div style={{ gridColumn: fixedMode ? '1 / -1' : 'auto' }}>
-                          <div className="form-label">Số lượng CCDC phân bổ</div>
+                          <div className="form-label">Số lượng công cụ dụng cụ phân bổ</div>
                           <div style={{ position: 'relative' }}>
                             <input
                               value={f.soLuong}
@@ -637,11 +633,8 @@ function Opt3Modal({ item, onClose, onSave, fixedMode }) {
                 Còn <strong>{remainingSingle} bộ</strong> {item.name} chưa được ghi nhận chi phí. Bạn có thể xem và ghi nhận sau tại danh sách CCDC chưa ghi nhận.
               </div>
             )}
-            {fixedMode && (forms.some(f => (parseInt(f.soLuong) || 0) > 0 && (parseInt(f.thoiGian) || 0) > 0 && f.ngay) || (remainingSingle > 0 && sumSingle > 0)) && (
+            {fixedMode && forms.some(f => (parseInt(f.soLuong) || 0) > 0 && (parseInt(f.thoiGian) || 0) > 0 && f.ngay) && (
               <div style={{ background: '#f2f8fe', border: '1px solid #cce2fd', borderRadius: 8, padding: '12px 14px', fontSize: 14, lineHeight: '22px', color: '#15171a', marginBottom: 12 }}>
-                {remainingSingle > 0 && sumSingle > 0 && (
-                  <div style={{ marginBottom: forms.some(f => (parseInt(f.soLuong)||0) > 0 && (parseInt(f.thoiGian)||0) > 0 && f.ngay) ? 6 : 0 }}>Còn <strong>{remainingSingle} bộ</strong> {item.name} chưa được ghi nhận chi phí.</div>
-                )}
                 {forms.map((f, i) => {
                   const sl = parseInt(f.soLuong) || 0
                   const months = parseInt(f.thoiGian) || 0
@@ -663,7 +656,7 @@ function Opt3Modal({ item, onClose, onSave, fixedMode }) {
             )}
             {sumSingle > TOTAL_QTY && (
               <div style={{ background: '#fff4f4', border: '1px solid #fbcfcf', borderRadius: 8, padding: '12px 14px', fontSize: 14, lineHeight: '20px', color: '#a8071a', marginBottom: 12 }}>
-                Tổng số lượng CCDC không được vượt quá <strong>{TOTAL_QTY} bộ</strong> (Hiện tại: <strong>{sumSingle} bộ</strong>)
+                Tổng số lượng Công cụ dụng cụ không được vượt quá <strong>{TOTAL_QTY} bộ</strong> (Hiện tại: <strong>{sumSingle} bộ</strong>)
               </div>
             )}
             {!(remainingSingle > 0) && !(forms.length === 1 && sumSingle >= TOTAL_QTY) && (
@@ -683,7 +676,7 @@ function Opt3Modal({ item, onClose, onSave, fixedMode }) {
                 <thead style={{ background: '#e6f1fe' }}>
                   <tr>
                     <th style={{ minWidth: 180 }}>Địa điểm sử dụng</th>
-                    <th style={{ width: 120 }}>Số lượng CCDC</th>
+                    <th style={{ width: 120 }}>Số lượng Công cụ dụng cụ</th>
                     <th>Ngày bắt đầu</th>
                     <th style={{ width: 110 }}>Thời gian phân bổ</th>
                     <th style={{ textAlign: 'right', width: 76 }}>Giá trị phân bổ/ tháng</th>
@@ -763,7 +756,7 @@ function Opt3Modal({ item, onClose, onSave, fixedMode }) {
 
             {sumNhom > TOTAL_QTY && (
               <div style={{ background: '#fff4f4', border: '1px solid #fbcfcf', borderRadius: 8, padding: '12px 14px', fontSize: 14, lineHeight: '20px', color: '#a8071a', marginBottom: 12 }}>
-                Tổng số lượng CCDC không được vượt quá <strong>{TOTAL_QTY} bộ</strong> (Hiện tại: <strong>{sumNhom} bộ</strong>)
+                Tổng số lượng Công cụ dụng cụ không được vượt quá <strong>{TOTAL_QTY} bộ</strong> (Hiện tại: <strong>{sumNhom} bộ</strong>)
               </div>
             )}
             {!fixedMode && remainingNhom > 0 && sumNhom > 0 && sumNhom <= TOTAL_QTY && (

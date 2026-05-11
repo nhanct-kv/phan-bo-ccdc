@@ -82,10 +82,11 @@ tr:last-child td { border-bottom: none; }
 .info-card { background: #fff; border: 1px solid #e8eaed; border-radius: 8px; padding: 16px; display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
 .info-card-left { display: flex; flex-direction: column; gap: 4px; }
 .info-card-name { font-size: 16px; font-weight: 700; color: #15171a; }
-.info-card-meta { font-size: 13px; color: #525d6a; display: flex; gap: 16px; }
+.info-card-meta { font-size: 13px; color: #525d6a; display: flex; gap: 6px; align-items: center; }
 .info-card-right { text-align: right; }
 .info-card-price { font-size: 24px; font-weight: 700; color: #0070f4; }
 .info-card-qty { font-size: 13px; color: #525d6a; margin-top: 4px; }
+.dot-sep { color: #c4c9cf; }
 
 .form-field { margin-bottom: 16px; }
 .form-label { font-size: 12px; font-weight: 600; color: #15171a; margin-bottom: 6px; }
