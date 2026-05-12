@@ -482,6 +482,7 @@ function Opt3Modal({ item, onClose, onSave, fixedMode }) {
   const [forms, setForms] = useState([{ id: 1, soLuong: String(TOTAL_QTY), diaDiem: 'Chi nhánh Hà Nội', ngay: '', thoiGian: '' }])
   const [collapsed, setCollapsed] = useState({})
   const [nhomForms, setNhomForms] = useState([{ id: 1, soLuong: String(TOTAL_QTY), diaDiem: 'Chi nhánh Hà Nội', ngay: '', thoiGian: '' }])
+  const [hinhThuc, setHinhThuc] = useState('oneKy')
 
   const sumSingle = forms.reduce((s, f) => s + (parseInt(f.soLuong) || 0), 0)
   const remainingSingle = Math.max(0, TOTAL_QTY - sumSingle)
@@ -518,6 +519,34 @@ function Opt3Modal({ item, onClose, onSave, fixedMode }) {
           </div>
         </div>
 
+        {fixedMode && (
+          <div style={{ marginBottom: 16 }}>
+            <div style={{ fontWeight: 600, fontSize: 14, color: '#15171a', marginBottom: 10 }}>Hình thức ghi nhận</div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+              <label
+                style={{ display: 'flex', alignItems: 'flex-start', gap: 10, border: `1.5px solid ${hinhThuc === 'oneKy' ? '#0070f4' : '#e8eaed'}`, borderRadius: 10, padding: '12px 14px', cursor: 'pointer', background: hinhThuc === 'oneKy' ? '#f0f7ff' : '#fff' }}
+                onClick={() => setHinhThuc('oneKy')}
+              >
+                <input type="radio" name="hinh-thuc" checked={hinhThuc === 'oneKy'} onChange={() => setHinhThuc('oneKy')} style={{ marginTop: 2, cursor: 'pointer', accentColor: '#0070f4' }} />
+                <div>
+                  <div style={{ fontWeight: 600, fontSize: 14, color: '#15171a' }}>Dùng một kỳ</div>
+                  <div style={{ fontSize: 13, color: '#677484', marginTop: 2, lineHeight: '18px' }}>Ghi nhận toàn bộ chi phí vào một kỳ</div>
+                </div>
+              </label>
+              <label
+                style={{ display: 'flex', alignItems: 'flex-start', gap: 10, border: `1.5px solid ${hinhThuc === 'multiKy' ? '#0070f4' : '#e8eaed'}`, borderRadius: 10, padding: '12px 14px', cursor: 'pointer', background: hinhThuc === 'multiKy' ? '#f0f7ff' : '#fff' }}
+                onClick={() => setHinhThuc('multiKy')}
+              >
+                <input type="radio" name="hinh-thuc" checked={hinhThuc === 'multiKy'} onChange={() => setHinhThuc('multiKy')} style={{ marginTop: 2, cursor: 'pointer', accentColor: '#0070f4' }} />
+                <div>
+                  <div style={{ fontWeight: 600, fontSize: 14, color: '#15171a' }}>Phân bổ nhiều kỳ</div>
+                  <div style={{ fontSize: 13, color: '#677484', marginTop: 2, lineHeight: '18px' }}>Chia đều chi phí để ghi nhận trong nhiều tháng</div>
+                </div>
+              </label>
+            </div>
+          </div>
+        )}
+
         {!fixedMode && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 16, fontSize: 14, color: '#15171a' }}>
             <span style={{ fontWeight: 500 }}>Ghi nhận chi phí cho:</span>
@@ -539,7 +568,7 @@ function Opt3Modal({ item, onClose, onSave, fixedMode }) {
               const months = parseInt(f.thoiGian) || 0
               const cost = sl * unitPrice
               const monthly = months > 0 ? Math.round(cost / months) : 0
-              const formComplete = sl > 0 && months > 0 && f.ngay && f.diaDiem
+              const formComplete = (fixedMode && hinhThuc === 'oneKy') ? sl > 0 : sl > 0 && months > 0 && f.ngay && f.diaDiem
               const isCollapsed = !!collapsed[f.id]
               const summaryParts = [sl > 0 && `${sl} bộ`, f.diaDiem, f.thoiGian && `${f.thoiGian} tháng`].filter(Boolean)
 
@@ -595,27 +624,31 @@ function Opt3Modal({ item, onClose, onSave, fixedMode }) {
                             <span style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', fontSize: 13, color: '#85909d' }}>/ {TOTAL_QTY} bộ</span>
                           </div>
                         </div>
-                        <div>
-                          <div className="form-label">Ngày bắt đầu phân bổ</div>
-                          <div style={{ position: 'relative' }}>
-                            <input
-                              type="text" placeholder="Chọn ngày" value={f.ngay}
-                              onChange={(e) => updateForm(idx, 'ngay', e.target.value)}
-                              style={{ width: '100%', height: 40, border: '1px solid #e8eaed', borderRadius: 12, padding: '0 36px 0 12px', fontSize: 14, fontFamily: 'Inter,sans-serif', outline: 'none', background: '#fff' }}
-                            />
-                            <span style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', width: 16, height: 16, color: '#85909d', pointerEvents: 'none', display: 'flex' }}>
-                              <CalendarIcon />
-                            </span>
-                          </div>
-                        </div>
-                        <div>
-                          <div className="form-label">Thời gian phân bổ (theo tháng)</div>
-                          <input
-                            type="text" placeholder="VD: 12" value={f.thoiGian}
-                            onChange={(e) => updateForm(idx, 'thoiGian', e.target.value)}
-                            style={{ width: '100%', height: 40, border: '1px solid #e8eaed', borderRadius: 12, padding: '0 12px', fontSize: 14, fontFamily: 'Inter,sans-serif', outline: 'none', background: '#fff' }}
-                          />
-                        </div>
+                        {(!fixedMode || hinhThuc === 'multiKy') && (
+                          <>
+                            <div>
+                              <div className="form-label">Ngày bắt đầu phân bổ</div>
+                              <div style={{ position: 'relative' }}>
+                                <input
+                                  type="text" placeholder="Chọn ngày" value={f.ngay}
+                                  onChange={(e) => updateForm(idx, 'ngay', e.target.value)}
+                                  style={{ width: '100%', height: 40, border: '1px solid #e8eaed', borderRadius: 12, padding: '0 36px 0 12px', fontSize: 14, fontFamily: 'Inter,sans-serif', outline: 'none', background: '#fff' }}
+                                />
+                                <span style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', width: 16, height: 16, color: '#85909d', pointerEvents: 'none', display: 'flex' }}>
+                                  <CalendarIcon />
+                                </span>
+                              </div>
+                            </div>
+                            <div>
+                              <div className="form-label">Thời gian phân bổ (theo tháng)</div>
+                              <input
+                                type="text" placeholder="VD: 12" value={f.thoiGian}
+                                onChange={(e) => updateForm(idx, 'thoiGian', e.target.value)}
+                                style={{ width: '100%', height: 40, border: '1px solid #e8eaed', borderRadius: 12, padding: '0 12px', fontSize: 14, fontFamily: 'Inter,sans-serif', outline: 'none', background: '#fff' }}
+                              />
+                            </div>
+                          </>
+                        )}
                       </div>
                       {!fixedMode && formComplete && (
                         <div style={{ marginTop: 10, fontSize: 13, color: '#525d6a', lineHeight: '18px' }}>
@@ -633,10 +666,15 @@ function Opt3Modal({ item, onClose, onSave, fixedMode }) {
                 Còn <strong>{remainingSingle} bộ</strong> {item.name} chưa được ghi nhận chi phí. Bạn có thể xem và ghi nhận sau tại danh sách CCDC chưa ghi nhận.
               </div>
             )}
-            {fixedMode && forms.some(f => (parseInt(f.soLuong) || 0) > 0 && (parseInt(f.thoiGian) || 0) > 0 && f.ngay) && (
+            {fixedMode && forms.some(f => hinhThuc === 'oneKy' ? (parseInt(f.soLuong) || 0) > 0 : (parseInt(f.soLuong) || 0) > 0 && (parseInt(f.thoiGian) || 0) > 0 && f.ngay) && (
               <div style={{ background: '#f2f8fe', border: '1px solid #cce2fd', borderRadius: 8, padding: '12px 14px', fontSize: 14, lineHeight: '22px', color: '#15171a', marginBottom: 12 }}>
                 {forms.map((f, i) => {
                   const sl = parseInt(f.soLuong) || 0
+                  if (hinhThuc === 'oneKy') {
+                    if (!sl) return null
+                    const cost = sl * unitPrice
+                    return <div key={i}>Chi phí <strong>{cost.toLocaleString('vi-VN')}</strong> của <strong>{sl} bộ</strong> sẽ được ghi nhận là chi phí một kỳ trong sổ kế toán.</div>
+                  }
                   const months = parseInt(f.thoiGian) || 0
                   if (!(sl > 0 && months > 0 && f.ngay)) return null
                   const cost = sl * unitPrice
@@ -677,9 +715,9 @@ function Opt3Modal({ item, onClose, onSave, fixedMode }) {
                   <tr>
                     <th style={{ minWidth: 180 }}>Địa điểm sử dụng</th>
                     <th style={{ width: 120 }}>Số lượng Công cụ dụng cụ</th>
-                    <th>Ngày bắt đầu</th>
-                    <th style={{ width: 110 }}>Thời gian phân bổ</th>
-                    <th style={{ textAlign: 'right', width: 76 }}>Giá trị phân bổ/ tháng</th>
+                    {(!fixedMode || hinhThuc === 'multiKy') && <th>Ngày bắt đầu</th>}
+                    {(!fixedMode || hinhThuc === 'multiKy') && <th style={{ width: 110 }}>Thời gian phân bổ</th>}
+                    {(!fixedMode || hinhThuc === 'multiKy') && <th style={{ textAlign: 'right', width: 76 }}>Giá trị phân bổ/ tháng</th>}
                     <th style={{ width: 36 }}></th>
                   </tr>
                 </thead>
@@ -711,31 +749,37 @@ function Opt3Modal({ item, onClose, onSave, fixedMode }) {
                             <span style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', fontSize: 12, color: '#85909d' }}>/ {TOTAL_QTY}</span>
                           </div>
                         </td>
-                        <td style={{ padding: '8px 10px' }}>
-                          <div style={{ position: 'relative' }}>
-                            <input
-                              type="text" placeholder="Chọn ngày" value={nhom.ngay}
-                              onChange={(e) => updateNhom(idx, 'ngay', e.target.value)}
-                              style={{ width: '100%', height: 32, border: '1px solid #e8eaed', borderRadius: 8, padding: '0 28px 0 8px', fontSize: 13, fontFamily: 'Inter,sans-serif', outline: 'none' }}
-                            />
-                            <span style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', width: 14, height: 14, color: '#85909d', pointerEvents: 'none', display: 'flex' }}>
-                              <CalendarIcon />
-                            </span>
-                          </div>
-                        </td>
-                        <td style={{ padding: '8px 10px' }}>
-                          <div style={{ position: 'relative' }}>
-                            <input
-                              type="text" placeholder="VD: 12" value={nhom.thoiGian}
-                              onChange={(e) => updateNhom(idx, 'thoiGian', e.target.value)}
-                              style={{ width: '100%', height: 32, border: '1px solid #e8eaed', borderRadius: 8, padding: '0 40px 0 8px', fontSize: 13, fontFamily: 'Inter,sans-serif', outline: 'none' }}
-                            />
-                            <span style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', fontSize: 12, color: '#85909d' }}>tháng</span>
-                          </div>
-                        </td>
-                        <td style={{ padding: '8px 10px', textAlign: 'right', fontWeight: 600, fontSize: 13, whiteSpace: 'nowrap' }}>
-                          {monthly > 0 ? monthly.toLocaleString('vi-VN') : '—'}
-                        </td>
+                        {(!fixedMode || hinhThuc === 'multiKy') && (
+                          <td style={{ padding: '8px 10px' }}>
+                            <div style={{ position: 'relative' }}>
+                              <input
+                                type="text" placeholder="Chọn ngày" value={nhom.ngay}
+                                onChange={(e) => updateNhom(idx, 'ngay', e.target.value)}
+                                style={{ width: '100%', height: 32, border: '1px solid #e8eaed', borderRadius: 8, padding: '0 28px 0 8px', fontSize: 13, fontFamily: 'Inter,sans-serif', outline: 'none' }}
+                              />
+                              <span style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', width: 14, height: 14, color: '#85909d', pointerEvents: 'none', display: 'flex' }}>
+                                <CalendarIcon />
+                              </span>
+                            </div>
+                          </td>
+                        )}
+                        {(!fixedMode || hinhThuc === 'multiKy') && (
+                          <td style={{ padding: '8px 10px' }}>
+                            <div style={{ position: 'relative' }}>
+                              <input
+                                type="text" placeholder="VD: 12" value={nhom.thoiGian}
+                                onChange={(e) => updateNhom(idx, 'thoiGian', e.target.value)}
+                                style={{ width: '100%', height: 32, border: '1px solid #e8eaed', borderRadius: 8, padding: '0 40px 0 8px', fontSize: 13, fontFamily: 'Inter,sans-serif', outline: 'none' }}
+                              />
+                              <span style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', fontSize: 12, color: '#85909d' }}>tháng</span>
+                            </div>
+                          </td>
+                        )}
+                        {(!fixedMode || hinhThuc === 'multiKy') && (
+                          <td style={{ padding: '8px 10px', textAlign: 'right', fontWeight: 600, fontSize: 13, whiteSpace: 'nowrap' }}>
+                            {monthly > 0 ? monthly.toLocaleString('vi-VN') : '—'}
+                          </td>
+                        )}
                         <td style={{ padding: '8px 4px', textAlign: 'center' }}>
                           {nhomForms.length > 1 && (
                             <button
@@ -770,7 +814,9 @@ function Opt3Modal({ item, onClose, onSave, fixedMode }) {
               </span>
             </div>
             {fixedMode && (() => {
-              const completeRows = nhomForms.filter(n => (parseInt(n.soLuong) || 0) > 0 && (parseInt(n.thoiGian) || 0) > 0 && n.ngay)
+              const completeRows = hinhThuc === 'oneKy'
+                ? nhomForms.filter(n => (parseInt(n.soLuong) || 0) > 0)
+                : nhomForms.filter(n => (parseInt(n.soLuong) || 0) > 0 && (parseInt(n.thoiGian) || 0) > 0 && n.ngay)
               const hasComplete = completeRows.length > 0
               const hasRemaining = remainingNhom > 0 && sumNhom > 0 && sumNhom <= TOTAL_QTY
               if (!hasComplete && !hasRemaining) return null
@@ -794,11 +840,15 @@ function Opt3Modal({ item, onClose, onSave, fixedMode }) {
                   )}
                   {hasComplete && (
                     <div>
-                      {locCount > 1
-                        ? <>Chi phí <strong>{totalCost.toLocaleString('vi-VN')}</strong> của <strong>{totalQty} bộ</strong> sẽ được tự động ghi nhận vào sổ kế toán tại <strong>{locCount}</strong> địa điểm theo phân bổ đã thiết lập.</>
-                        : allMonths1
-                          ? <>Chi phí <strong>{totalCost.toLocaleString('vi-VN')}</strong> của <strong>{totalQty} bộ</strong> sẽ được ghi nhận là chi phí tháng <strong>{monthYear}</strong> trong sổ kế toán tại <strong>{locCount}</strong> địa điểm kinh doanh.</>
-                          : <>Chi phí <strong>{totalCost.toLocaleString('vi-VN')}</strong> của <strong>{totalQty} bộ</strong> sẽ được tự động ghi nhận vào sổ kế toán, mỗi tháng ghi nhận <strong>{totalMonthly.toLocaleString('vi-VN')}</strong> tại <strong>{locCount}</strong> địa điểm kinh doanh.</>
+                      {hinhThuc === 'oneKy'
+                        ? locCount > 1
+                          ? <>Chi phí <strong>{totalCost.toLocaleString('vi-VN')}</strong> của <strong>{totalQty} bộ</strong> sẽ được ghi nhận là chi phí một kỳ trong sổ kế toán tại <strong>{locCount}</strong> địa điểm theo phân bổ đã thiết lập.</>
+                          : <>Chi phí <strong>{totalCost.toLocaleString('vi-VN')}</strong> của <strong>{totalQty} bộ</strong> sẽ được ghi nhận là chi phí một kỳ trong sổ kế toán tại <strong>{locCount}</strong> địa điểm kinh doanh.</>
+                        : locCount > 1
+                          ? <>Chi phí <strong>{totalCost.toLocaleString('vi-VN')}</strong> của <strong>{totalQty} bộ</strong> sẽ được tự động ghi nhận vào sổ kế toán tại <strong>{locCount}</strong> địa điểm theo phân bổ đã thiết lập.</>
+                          : allMonths1
+                            ? <>Chi phí <strong>{totalCost.toLocaleString('vi-VN')}</strong> của <strong>{totalQty} bộ</strong> sẽ được ghi nhận là chi phí tháng <strong>{monthYear}</strong> trong sổ kế toán tại <strong>{locCount}</strong> địa điểm kinh doanh.</>
+                            : <>Chi phí <strong>{totalCost.toLocaleString('vi-VN')}</strong> của <strong>{totalQty} bộ</strong> sẽ được tự động ghi nhận vào sổ kế toán, mỗi tháng ghi nhận <strong>{totalMonthly.toLocaleString('vi-VN')}</strong> tại <strong>{locCount}</strong> địa điểm kinh doanh.</>
                       }
                     </div>
                   )}
