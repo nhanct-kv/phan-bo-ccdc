@@ -139,18 +139,12 @@ function RecordCostModal({ item, ghinhanNgay, setGhinhanNgay, ghinhanThang, setG
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
             <div>
               <div className="form-label">Ngày bắt đầu phân bổ</div>
-              <div style={{ position: 'relative' }}>
-                <input
-                  type="text"
-                  placeholder="Chọn ngày"
-                  value={ghinhanNgay}
-                  onChange={(e) => setGhinhanNgay(e.target.value)}
-                  style={{ width: '100%', height: 40, border: '1px solid #e8eaed', borderRadius: 12, padding: '0 36px 0 12px', fontSize: 14, fontFamily: 'Inter,sans-serif', outline: 'none', background: '#fff', boxSizing: 'border-box' }}
-                />
-                <span style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', width: 16, height: 16, color: '#85909d', pointerEvents: 'none', display: 'flex' }}>
-                  <CalendarIcon />
-                </span>
-              </div>
+              <input
+                type="date"
+                value={ghinhanNgay}
+                onChange={(e) => setGhinhanNgay(e.target.value)}
+                style={{ width: '100%', height: 40, border: '1px solid #e8eaed', borderRadius: 12, padding: '0 12px', fontSize: 14, fontFamily: 'Inter,sans-serif', outline: 'none', background: '#fff', boxSizing: 'border-box' }}
+              />
             </div>
             <div>
               <div className="form-label">Thời gian phân bổ (theo tháng)</div>
@@ -244,18 +238,12 @@ function GroupRecordModal({ item, nhomPhanBo, addNhom, updateNhom, removeNhom, o
                       </div>
                     </td>
                     <td style={{ padding: '8px 10px' }}>
-                      <div style={{ position: 'relative' }}>
-                        <input
-                          type="text"
-                          placeholder="Chọn ngày"
-                          value={nhom.ngay}
-                          onChange={(e) => updateNhom(idx, 'ngay', e.target.value)}
-                          style={{ width: '100%', height: 32, border: '1px solid #e8eaed', borderRadius: 8, padding: '0 28px 0 8px', fontSize: 13, fontFamily: 'Inter,sans-serif', outline: 'none' }}
-                        />
-                        <span style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', width: 14, height: 14, color: '#85909d', pointerEvents: 'none', display: 'flex' }}>
-                          <CalendarIcon />
-                        </span>
-                      </div>
+                      <input
+                        type="date"
+                        value={nhom.ngay}
+                        onChange={(e) => updateNhom(idx, 'ngay', e.target.value)}
+                        style={{ width: '100%', height: 32, border: '1px solid #e8eaed', borderRadius: 8, padding: '0 8px', fontSize: 13, fontFamily: 'Inter,sans-serif', outline: 'none' }}
+                      />
                     </td>
                     <td style={{ padding: '8px 10px' }}>
                       <div style={{ position: 'relative' }}>
@@ -404,18 +392,12 @@ function MultiAllocModal({ item, opt2Forms, addOpt2Form, updateOpt2, removeOpt2F
                     </div>
                     <div>
                       <div className="form-label">Ngày bắt đầu phân bổ</div>
-                      <div style={{ position: 'relative' }}>
-                        <input
-                          type="text"
-                          placeholder="Chọn ngày"
-                          value={f.ngay}
-                          onChange={(e) => updateOpt2(idx, 'ngay', e.target.value)}
-                          style={{ width: '100%', height: 40, border: '1px solid #e8eaed', borderRadius: 12, padding: '0 36px 0 12px', fontSize: 14, fontFamily: 'Inter,sans-serif', outline: 'none', background: '#fff' }}
-                        />
-                        <span style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', width: 16, height: 16, color: '#85909d', pointerEvents: 'none', display: 'flex' }}>
-                          <CalendarIcon />
-                        </span>
-                      </div>
+                      <input
+                        type="date"
+                        value={f.ngay}
+                        onChange={(e) => updateOpt2(idx, 'ngay', e.target.value)}
+                        style={{ width: '100%', height: 40, border: '1px solid #e8eaed', borderRadius: 12, padding: '0 12px', fontSize: 14, fontFamily: 'Inter,sans-serif', outline: 'none', background: '#fff' }}
+                      />
                     </div>
                     <div>
                       <div className="form-label">Thời gian phân bổ (theo tháng)</div>
@@ -628,16 +610,11 @@ function Opt3Modal({ item, onClose, onSave, fixedMode }) {
                           <>
                             <div>
                               <div className="form-label">Ngày bắt đầu phân bổ</div>
-                              <div style={{ position: 'relative' }}>
-                                <input
-                                  type="text" placeholder="Chọn ngày" value={f.ngay}
-                                  onChange={(e) => updateForm(idx, 'ngay', e.target.value)}
-                                  style={{ width: '100%', height: 40, border: '1px solid #e8eaed', borderRadius: 12, padding: '0 36px 0 12px', fontSize: 14, fontFamily: 'Inter,sans-serif', outline: 'none', background: '#fff' }}
-                                />
-                                <span style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', width: 16, height: 16, color: '#85909d', pointerEvents: 'none', display: 'flex' }}>
-                                  <CalendarIcon />
-                                </span>
-                              </div>
+                              <input
+                                type="date" value={f.ngay}
+                                onChange={(e) => updateForm(idx, 'ngay', e.target.value)}
+                                style={{ width: '100%', height: 40, border: '1px solid #e8eaed', borderRadius: 12, padding: '0 12px', fontSize: 14, fontFamily: 'Inter,sans-serif', outline: 'none', background: '#fff' }}
+                              />
                             </div>
                             <div>
                               <div className="form-label">Thời gian phân bổ (theo tháng)</div>
@@ -679,8 +656,8 @@ function Opt3Modal({ item, onClose, onSave, fixedMode }) {
                   if (!(sl > 0 && months > 0 && f.ngay)) return null
                   const cost = sl * unitPrice
                   const monthly = months > 0 ? Math.round(cost / months) : 0
-                  const ngayParts = (f.ngay || '').split('/')
-                  const monthYear = ngayParts.length === 3 ? `${parseInt(ngayParts[1])}/${ngayParts[2]}` : ''
+                  const ngayParts = (f.ngay || '').split('-')
+                  const monthYear = ngayParts.length === 3 ? `${parseInt(ngayParts[1])}/${ngayParts[0]}` : ''
                   return (
                     <div key={i}>
                       {months === 1
@@ -751,16 +728,11 @@ function Opt3Modal({ item, onClose, onSave, fixedMode }) {
                         </td>
                         {(!fixedMode || hinhThuc === 'multiKy') && (
                           <td style={{ padding: '8px 10px' }}>
-                            <div style={{ position: 'relative' }}>
-                              <input
-                                type="text" placeholder="Chọn ngày" value={nhom.ngay}
-                                onChange={(e) => updateNhom(idx, 'ngay', e.target.value)}
-                                style={{ width: '100%', height: 32, border: '1px solid #e8eaed', borderRadius: 8, padding: '0 28px 0 8px', fontSize: 13, fontFamily: 'Inter,sans-serif', outline: 'none' }}
-                              />
-                              <span style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', width: 14, height: 14, color: '#85909d', pointerEvents: 'none', display: 'flex' }}>
-                                <CalendarIcon />
-                              </span>
-                            </div>
+                            <input
+                              type="date" value={nhom.ngay}
+                              onChange={(e) => updateNhom(idx, 'ngay', e.target.value)}
+                              style={{ width: '100%', height: 32, border: '1px solid #e8eaed', borderRadius: 8, padding: '0 8px', fontSize: 13, fontFamily: 'Inter,sans-serif', outline: 'none' }}
+                            />
                           </td>
                         )}
                         {(!fixedMode || hinhThuc === 'multiKy') && (
@@ -829,8 +801,8 @@ function Opt3Modal({ item, onClose, onSave, fixedMode }) {
               }, 0)
               const locCount = completeRows.length
               const allMonths1 = completeRows.every(n => (parseInt(n.thoiGian) || 0) === 1)
-              const firstNgayParts = completeRows.length > 0 ? (completeRows[0].ngay || '').split('/') : []
-              const monthYear = firstNgayParts.length === 3 ? `${parseInt(firstNgayParts[1])}/${firstNgayParts[2]}` : ''
+              const firstNgayParts = completeRows.length > 0 ? (completeRows[0].ngay || '').split('-') : []
+              const monthYear = firstNgayParts.length === 3 ? `${parseInt(firstNgayParts[1])}/${firstNgayParts[0]}` : ''
               return (
                 <div style={{ background: '#f2f8fe', border: '1px solid #cce2fd', borderRadius: 8, padding: '12px 14px', fontSize: 14, lineHeight: '22px', color: '#15171a', marginTop: 12 }}>
                   {hasRemaining && (
@@ -869,10 +841,11 @@ function Opt3Modal({ item, onClose, onSave, fixedMode }) {
                               const sl = parseInt(n.soLuong) || 0
                               const months = parseInt(n.thoiGian) || 0
                               const monthly = months > 0 ? Math.round(sl * unitPrice / months) : 0
-                              const parts = (n.ngay || '').split('/')
+                              const parts = (n.ngay || '').split('-')
                               let fromStr = '', toStr = ''
-                              if (parts.length === 3) {
-                                const startM = parseInt(parts[1]), startY = parseInt(parts[2])
+                              let startM = 0, startY = 0
+                              if (parts.length === 3) { startM = parseInt(parts[1]); startY = parseInt(parts[0]) }
+                              if (startM && startY) {
                                 fromStr = `${startM}/${startY}`
                                 const endTotal = (startM - 1) + months
                                 toStr = `${(endTotal % 12) + 1}/${startY + Math.floor(endTotal / 12)}`
