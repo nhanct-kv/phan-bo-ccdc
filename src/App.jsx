@@ -840,16 +840,55 @@ function Opt3Modal({ item, onClose, onSave, fixedMode }) {
                   )}
                   {hasComplete && (
                     <div>
-                      {hinhThuc === 'oneKy'
-                        ? locCount > 1
-                          ? <>Chi phí <strong>{totalCost.toLocaleString('vi-VN')}</strong> của <strong>{totalQty} bộ</strong> sẽ được ghi nhận là chi phí một kỳ trong sổ kế toán tại <strong>{locCount}</strong> địa điểm theo phân bổ đã thiết lập.</>
-                          : <>Chi phí <strong>{totalCost.toLocaleString('vi-VN')}</strong> của <strong>{totalQty} bộ</strong> sẽ được ghi nhận là chi phí một kỳ trong sổ kế toán tại <strong>{locCount}</strong> địa điểm kinh doanh.</>
-                        : locCount > 1
-                          ? <>Chi phí <strong>{totalCost.toLocaleString('vi-VN')}</strong> của <strong>{totalQty} bộ</strong> sẽ được tự động ghi nhận vào sổ kế toán tại <strong>{locCount}</strong> địa điểm theo phân bổ đã thiết lập.</>
-                          : allMonths1
-                            ? <>Chi phí <strong>{totalCost.toLocaleString('vi-VN')}</strong> của <strong>{totalQty} bộ</strong> sẽ được ghi nhận là chi phí tháng <strong>{monthYear}</strong> trong sổ kế toán tại <strong>{locCount}</strong> địa điểm kinh doanh.</>
-                            : <>Chi phí <strong>{totalCost.toLocaleString('vi-VN')}</strong> của <strong>{totalQty} bộ</strong> sẽ được tự động ghi nhận vào sổ kế toán, mỗi tháng ghi nhận <strong>{totalMonthly.toLocaleString('vi-VN')}</strong> tại <strong>{locCount}</strong> địa điểm kinh doanh.</>
-                      }
+                      {hinhThuc === 'oneKy' && locCount === 1 && (
+                        <>Chi phí <strong>{totalCost.toLocaleString('vi-VN')}</strong> của <strong>{totalQty} bộ</strong> sẽ được ghi nhận là chi phí một kỳ trong sổ kế toán tại <strong>{locCount}</strong> địa điểm kinh doanh.</>
+                      )}
+                      {hinhThuc === 'oneKy' && locCount > 1 && (
+                        <>
+                          Chi phí <strong>{totalCost.toLocaleString('vi-VN')}</strong> của <strong>{totalQty} bộ</strong> sẽ được ghi nhận là chi phí một kỳ trong sổ kế toán tại <strong>{locCount}</strong> địa điểm kinh doanh:
+                          <ul style={{ margin: '6px 0 0', padding: 0, listStyle: 'none' }}>
+                            {completeRows.map((n, i) => (
+                              <li key={i} style={{ display: 'flex', gap: 6, marginTop: 4 }}>
+                                <span style={{ color: '#0070f4', flexShrink: 0 }}>•</span>
+                                <span><strong>{n.diaDiem}</strong>: Ghi nhận một kỳ</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </>
+                      )}
+                      {hinhThuc !== 'oneKy' && locCount === 1 && (
+                        allMonths1
+                          ? <>Chi phí <strong>{totalCost.toLocaleString('vi-VN')}</strong> của <strong>{totalQty} bộ</strong> sẽ được ghi nhận là chi phí tháng <strong>{monthYear}</strong> trong sổ kế toán tại <strong>{locCount}</strong> địa điểm kinh doanh.</>
+                          : <>Chi phí <strong>{totalCost.toLocaleString('vi-VN')}</strong> của <strong>{totalQty} bộ</strong> sẽ được tự động ghi nhận vào sổ kế toán, mỗi tháng ghi nhận <strong>{totalMonthly.toLocaleString('vi-VN')}</strong> tại <strong>{locCount}</strong> địa điểm kinh doanh.</>
+                      )}
+                      {hinhThuc !== 'oneKy' && locCount > 1 && (
+                        <>
+                          Chi phí <strong>{totalCost.toLocaleString('vi-VN')}</strong> của <strong>{totalQty} bộ</strong> sẽ được tự động ghi nhận vào sổ kế toán tại <strong>{locCount}</strong> địa điểm kinh doanh:
+                          <ul style={{ margin: '6px 0 0', padding: 0, listStyle: 'none' }}>
+                            {completeRows.map((n, i) => {
+                              const sl = parseInt(n.soLuong) || 0
+                              const months = parseInt(n.thoiGian) || 0
+                              const monthly = months > 0 ? Math.round(sl * unitPrice / months) : 0
+                              const parts = (n.ngay || '').split('/')
+                              let fromStr = '', toStr = ''
+                              if (parts.length === 3) {
+                                const startM = parseInt(parts[1]), startY = parseInt(parts[2])
+                                fromStr = `${startM}/${startY}`
+                                const endTotal = (startM - 1) + months
+                                toStr = `${(endTotal % 12) + 1}/${startY + Math.floor(endTotal / 12)}`
+                              }
+                              return (
+                                <li key={i} style={{ display: 'flex', gap: 6, marginTop: 4 }}>
+                                  <span style={{ color: '#0070f4', flexShrink: 0 }}>•</span>
+                                  <span>
+                                    <strong>{n.diaDiem}</strong>: Phân bổ trong {months} tháng{fromStr ? ` - từ ${fromStr} đến ${toStr}, mỗi tháng ghi nhận ${monthly.toLocaleString('vi-VN')}đ` : ''}
+                                  </span>
+                                </li>
+                              )
+                            })}
+                          </ul>
+                        </>
+                      )}
                     </div>
                   )}
                 </div>
